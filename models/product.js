@@ -23,7 +23,6 @@ class Product {
       } else {
         result = await db.collection("products").insertOne(this);
       }
-      console.log(result);
       return result;
     } catch (error) {
       throw error;
@@ -53,12 +52,26 @@ class Product {
     }
   }
 
-  static async deleteById(prodId) {
+  static async deleteById(prodId, userId) {
     try {
       const db = getDb();
-      return db
+
+      const result = await db
         .collection("products")
         .deleteOne({ _id: new mongodb.ObjectId(prodId) });
+      if (result) {
+        const deleteFromCart = await db.collection("users").updateOne(
+          { _id: new mongodb.ObjectId(userId) },
+          {
+            $pull: {
+              "cart.items": { productId: new mongodb.ObjectId(prodId) },
+            },
+          }
+        );
+        if (deleteFromCart) {
+          return result;
+        }
+      }
     } catch (error) {
       throw error;
     }

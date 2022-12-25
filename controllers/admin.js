@@ -11,7 +11,6 @@ exports.getAddProduct = (request, response, next) => {
 };
 
 exports.postAddProduct = async (request, response, next) => {
-  console.log(request.user);
   const title = request.body.title;
   const description = request.body.description;
   const imageUrl = request.body.imageUrl;
@@ -97,8 +96,9 @@ exports.postEditProduct = async (request, response, next) => {
 
 exports.postDeleteProduct = async (request, response, next) => {
   const prodId = request.body.productId;
+  const userId = request.user._id;
   try {
-    const result = await Product.deleteById(prodId);
+    const result = await Product.deleteById(prodId, userId);
 
     if (result) {
       response.redirect("/admin/products");
